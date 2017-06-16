@@ -4,6 +4,8 @@ implemented in this project.
 */
 package queue
 
+import "errors"
+
 // A Queue represents a collection of values of type interface{} with a
 // queue access semantics.
 //
@@ -53,3 +55,12 @@ type Queue interface {
 	// and ErrEmpty.
 	Dequeue() (interface{}, error)
 }
+
+var (
+	// ErrInfinite is returned by Size if the queue is infinite.
+	ErrInfinite = errors.New("infinite queue")
+	// ErrFull is returned by bounded queues if the queue is already full.
+	ErrFull = errors.New("full queue")
+	// ErrEmpty is returned by Head and Dequeue if the the is empty.
+	ErrEmpty = errors.New("empty queue")
+)
