@@ -12,7 +12,7 @@ import (
 	"github.com/alcortesm/queue"
 )
 
-type cbuf struct {
+type CBuf struct {
 	size  int
 	len   int
 	elems []interface{}
@@ -23,45 +23,45 @@ func New(size int) (queue.Queue, error) {
 	if size < 0 {
 		return nil, fmt.Errorf("size must be 0 or positive, was %d", size)
 	}
-	return &cbuf{size: size}, nil
+	return &CBuf{size: size}, nil
 }
 
-func (c *cbuf) lazyElems() []interface{} {
+func (c *CBuf) lazyElems() []interface{} {
 	if c.elems == nil {
 		c.elems = make([]interface{}, c.size)
 	}
 	return c.elems
 }
 
-func (c *cbuf) Bounded() bool {
+func (c *CBuf) Bounded() bool {
 	return true
 }
 
-func (c *cbuf) Size() (int, error) {
+func (c *CBuf) Size() (int, error) {
 	return c.size, nil
 }
 
-func (c *cbuf) Len() int {
+func (c *CBuf) Len() int {
 	return c.len
 }
 
-func (c *cbuf) Empty() bool {
+func (c *CBuf) Empty() bool {
 	return c.len == 0
 }
 
-func (c *cbuf) Full() bool {
+func (c *CBuf) Full() bool {
 	return c.len == c.size
 }
 
-func (c *cbuf) next(n int) int {
+func (c *CBuf) next(n int) int {
 	return (n + 1) % c.size
 }
 
-func (c *cbuf) tail() int {
+func (c *CBuf) tail() int {
 	return (c.head + c.len - 1) % c.size
 }
 
-func (c *cbuf) Enqueue(e interface{}) error {
+func (c *CBuf) Enqueue(e interface{}) error {
 	if c.len == c.size {
 		return queue.ErrFull
 	}
@@ -71,14 +71,14 @@ func (c *cbuf) Enqueue(e interface{}) error {
 	return nil
 }
 
-func (c *cbuf) Head() (interface{}, error) {
+func (c *CBuf) Head() (interface{}, error) {
 	if c.len == 0 {
 		return nil, queue.ErrEmpty
 	}
 	return c.elems[c.head], nil
 }
 
-func (c *cbuf) Dequeue() (interface{}, error) {
+func (c *CBuf) Dequeue() (interface{}, error) {
 	if c.len == 0 {
 		return nil, queue.ErrEmpty
 	}
