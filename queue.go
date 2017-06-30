@@ -13,15 +13,17 @@ import "errors"
 // method.  The first element in the queue can be accessed through the
 // Head method or extracted using the Dequeue method.
 //
-// Queues can be bounded (fixed capacity) or infinite.  Bounded queues
-// will have a constant size representing the maximum number of elements
-// they can store at any given time.
+// There are two types of queues, bounded and infinite.  Bounded queues
+// have a constant capacity representing the maximum number of elements
+// they can store at any given time.  Infinite queues don't have the
+// concept of capacity, you will be able to enqueue elements in them
+// until they eventually run out of resources.
 //
-// If a bounded queue has size 0, all enqueue calls will fail and the
-// queue will be empty and full at the same time.
-//
-// Infinite queues can still fail to enqueue elements due to memory
-// exhaustion.
+// If a bounded queue has capacity 0, this means it will be empty and
+// full at the same time: all enqueue calls will fail because there is
+// not enough capacity to store the given element.  At the same time,
+// all dequeue calls will fail because there aren't any elements in the
+// queue to retrieve.
 //
 // This interface makes no assumtions about the thread safety of its
 // implementations.
@@ -29,38 +31,41 @@ type Queue interface {
 	// Bounded returns true if the queue has fixed capacity and false if
 	// it is infinite.
 	Bounded() bool
-	// Size returns the maximum number of elements allowed in the queue
-	// at any given time and a nil error if the queue is bounded.  On
-	// infinite queues it return 0 and ErrInfinite.  The size of bounded
-	// queues will be 0 or a positve integer.
-	Size() (int, error)
+	// Cap returns the capacity of the queue and nil for bounded queues.
+	// On infinite queues it returns 0 and ErrInfinite.  The capacity of
+	// bounded queues will be 0 or a positive integer.
+	Cap() (int, error)
 	// Len returns the number of elements currently in the queue.
 	Len() int
 	// Empty returns if the queue is empty, this is, if Len is 0.
 	Empty() bool
-	// Full returns if the queue is full, this is, if no more elements
-	// can fit in the queue.  Infinite queues are never full, yet
-	// enqueuing can fail due to memory exhaustion.
+	// Full returns if there is not enough capacity in the queue to
+	// store any more element.
+	//
+	// Infinite queues always return false, as they are never full.
+	// Please note how an enqueue call on an infite queue can still fail
+	// for other reasons.
 	Full() bool
 	// Enqueue try to add the given element at the back of the queue and
-	// returns a nil error on success.  Otherwise, it returns an error.
-	// In particular, for bouned queues, ErrFull is returned if the call
-	// failed because the queue was already full.
+	// returns a nil error on success.  It returns ErrFull on a full
+	// bounded queue.  Infinite queues should not panic if they cannot enqueue
+	// due to lack of resources, instead a sensible error from the underliying
+	// medium should be returned.
 	Enqueue(interface{}) error
 	// Head returns the first element in the queue and a nil error if
 	// the queue is not empty.  Otherwise It returns nil and ErrEmpty.
 	Head() (interface{}, error)
-	// Dequeue extracts and returns the first element of the queue and a
+	// Dequeue extracts and returns the first element from the queue and a
 	// nil error if the queue is not empty.  Otherwise it returns nil
 	// and ErrEmpty.
 	Dequeue() (interface{}, error)
 }
 
 var (
-	// ErrInfinite is returned by Size if the queue is infinite.
+	// ErrInfinite is returned by Capacity if the queue is infinite.
 	ErrInfinite = errors.New("infinite queue")
-	// ErrFull is returned by bounded queues if the queue is already full.
+	// ErrFull is returned when trying to enqueue to a full bounded queue.
 	ErrFull = errors.New("full queue")
-	// ErrEmpty is returned by Head and Dequeue if the the is empty.
+	// ErrEmpty is returned by Head and Dequeue if the queue is empty.
 	ErrEmpty = errors.New("empty queue")
 )
