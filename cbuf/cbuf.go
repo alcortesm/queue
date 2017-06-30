@@ -13,28 +13,29 @@ import (
 )
 
 type CBuf struct {
-	size  int
+	cap   int
 	len   int
 	elems []interface{}
 	head  int
 }
 
 // New returns a new CBuf implementing a bounded queue.Queue of the
-// given size and a nil error.  It returns nil and an error if size is
-// negative.
+// given capacity and a nil error.  It returns nil and an error if the
+// given capacity is a negative integer.
 //
-// The allocation of the memory to store the elements is delayed until
-// the first enqueue operation.
-func New(size int) (queue.Queue, error) {
-	if size < 0 {
-		return nil, fmt.Errorf("size must be 0 or positive, was %d", size)
+// The allocation of the memory to store all the elements is delayed
+// until the first enqueue operation.
+func New(capacity int) (queue.Queue, error) {
+	if capacity < 0 {
+		return nil, fmt.Errorf("capacity must be 0 or positive, was %d",
+			capacity)
 	}
-	return &CBuf{size: size}, nil
+	return &CBuf{cap: capacity}, nil
 }
 
 func (c *CBuf) lazyElems() []interface{} {
 	if c.elems == nil {
-		c.elems = make([]interface{}, c.size)
+		c.elems = make([]interface{}, c.cap)
 	}
 	return c.elems
 }
@@ -45,10 +46,9 @@ func (c *CBuf) Bounded() bool {
 	return true
 }
 
-// Implements queue.Queue.  CBuf queues are always bounded, which means
-// this method always return the size and a nil error.
-func (c *CBuf) Size() (int, error) {
-	return c.size, nil
+// Implements queue.Queue.
+func (c *CBuf) Cap() (int, error) {
+	return c.cap, nil
 }
 
 // Implements queue.Queue.
@@ -63,20 +63,20 @@ func (c *CBuf) Empty() bool {
 
 // Implements queue.Queue.
 func (c *CBuf) Full() bool {
-	return c.len == c.size
+	return c.len == c.cap
 }
 
 func (c *CBuf) next(n int) int {
-	return (n + 1) % c.size
+	return (n + 1) % c.cap
 }
 
 func (c *CBuf) tail() int {
-	return (c.head + c.len - 1) % c.size
+	return (c.head + c.len - 1) % c.cap
 }
 
 // Implements queue.Queue.
 func (c *CBuf) Enqueue(e interface{}) error {
-	if c.len == c.size {
+	if c.len == c.cap {
 		return queue.ErrFull
 	}
 	elems := c.lazyElems()
