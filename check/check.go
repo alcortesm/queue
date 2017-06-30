@@ -1,6 +1,7 @@
 package check
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/alcortesm/queue"
@@ -14,20 +15,26 @@ func Seq(n int) []int {
 	return ret
 }
 
+func error(t *testing.T, ctx string, msg string) {
+	t.Errorf("context: %q\n %s", ctx, msg)
+}
+
 func Bounded(t *testing.T, q queue.Queue, expected bool, context string) {
 	obtained := q.Bounded()
 	if obtained != expected {
-		t.Errorf("%swrong bounded info: expected %t, got %t",
-			context, expected, obtained)
+		msg := fmt.Sprintf("wrong bounded info: expected %t, got %t",
+			expected, obtained)
+		error(t, context, msg)
 	}
 }
 
 func CapInfinite(t *testing.T, q queue.Queue, context string) {
 	capacity, err := q.Cap()
 	if err == nil {
-		t.Errorf(
-			"%snil error calling Cap, ErrInfinite was expected, capacity was %d",
-			context, capacity)
+		msg := fmt.Sprintf("nil error calling Cap, "+
+			"ErrInfinite was expected, capacity was %d",
+			capacity)
+		error(t, context, msg)
 	}
 	if err != queue.ErrInfinite {
 		t.Errorf("%swrong error calling Cap: %s", context, err)
@@ -37,34 +44,39 @@ func CapInfinite(t *testing.T, q queue.Queue, context string) {
 func CapBounded(t *testing.T, q queue.Queue, expected int, context string) {
 	obtained, err := q.Cap()
 	if err != nil {
-		t.Errorf("%sunexpected error calling Cap: %s", context, err)
+		msg := fmt.Sprintf("unexpected error calling Cap: %s", err)
+		error(t, context, msg)
 	}
 	if obtained != expected {
-		t.Errorf("%swrong Cap: expected %d, got %d",
-			context, expected, obtained)
+		msg := fmt.Sprintf("wrong Cap: expected %d, got %d",
+			expected, obtained)
+		error(t, context, msg)
 	}
 }
 
 func Len(t *testing.T, q queue.Queue, expected int, context string) {
 	obtained := q.Len()
 	if obtained != expected {
-		t.Errorf("%swrong Len: expected %d, got %d",
-			context, expected, obtained)
+		msg := fmt.Sprintf("wrong Len: expected %d, got %d",
+			expected, obtained)
+		error(t, context, msg)
 	}
 }
 
 func Empty(t *testing.T, q queue.Queue, expected bool, context string) {
 	obtained := q.Empty()
 	if obtained != expected {
-		t.Errorf("%swrong Empty: expected %t, got %t",
-			context, expected, obtained)
+		msg := fmt.Sprintf("wrong Empty: expected %t, got %t",
+			expected, obtained)
+		error(t, context, msg)
 	}
 }
 
 func Full(t *testing.T, q queue.Queue, expected bool, context string) {
 	obtained := q.Full()
 	if obtained != expected {
-		t.Errorf("%swrong Full: expected %t, got %t",
-			context, expected, obtained)
+		msg := fmt.Sprintf("wrong Full: expected %t, got %t",
+			expected, obtained)
+		error(t, context, msg)
 	}
 }
