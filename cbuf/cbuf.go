@@ -73,7 +73,11 @@ func (c *CBuf) Enqueue(e interface{}) error {
 	if c.len == c.cap {
 		return queue.ErrFull
 	}
-	c.elems[c.tail()] = e
+	if c.len == 0 {
+		c.elems[c.head] = e
+	} else {
+		c.elems[c.tail()] = e
+	}
 	c.len++
 	return nil
 }
