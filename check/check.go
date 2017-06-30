@@ -1,4 +1,4 @@
-package test
+package check
 
 import (
 	"testing"
@@ -14,7 +14,7 @@ func Seq(n int) []int {
 	return ret
 }
 
-func CheckBounded(t *testing.T, q queue.Queue, expected bool, context string) {
+func Bounded(t *testing.T, q queue.Queue, expected bool, context string) {
 	obtained := q.Bounded()
 	if obtained != expected {
 		t.Errorf("%swrong bounded info: expected %t, got %t",
@@ -22,7 +22,7 @@ func CheckBounded(t *testing.T, q queue.Queue, expected bool, context string) {
 	}
 }
 
-func CheckCapInfinite(t *testing.T, q queue.Queue, context string) {
+func CapInfinite(t *testing.T, q queue.Queue, context string) {
 	capacity, err := q.Cap()
 	if err == nil {
 		t.Errorf(
@@ -34,7 +34,7 @@ func CheckCapInfinite(t *testing.T, q queue.Queue, context string) {
 	}
 }
 
-func CheckCapBounded(t *testing.T, q queue.Queue, expected int, context string) {
+func CapBounded(t *testing.T, q queue.Queue, expected int, context string) {
 	obtained, err := q.Cap()
 	if err != nil {
 		t.Errorf("%sunexpected error calling Cap: %s", context, err)
@@ -45,7 +45,7 @@ func CheckCapBounded(t *testing.T, q queue.Queue, expected int, context string) 
 	}
 }
 
-func CheckLen(t *testing.T, q queue.Queue, expected int, context string) {
+func Len(t *testing.T, q queue.Queue, expected int, context string) {
 	obtained := q.Len()
 	if obtained != expected {
 		t.Errorf("%swrong Len: expected %d, got %d",
@@ -53,7 +53,7 @@ func CheckLen(t *testing.T, q queue.Queue, expected int, context string) {
 	}
 }
 
-func CheckEmpty(t *testing.T, q queue.Queue, expected bool, context string) {
+func Empty(t *testing.T, q queue.Queue, expected bool, context string) {
 	obtained := q.Empty()
 	if obtained != expected {
 		t.Errorf("%swrong Empty: expected %t, got %t",
@@ -61,7 +61,7 @@ func CheckEmpty(t *testing.T, q queue.Queue, expected bool, context string) {
 	}
 }
 
-func CheckFull(t *testing.T, q queue.Queue, expected bool, context string) {
+func Full(t *testing.T, q queue.Queue, expected bool, context string) {
 	obtained := q.Full()
 	if obtained != expected {
 		t.Errorf("%swrong Full: expected %t, got %t",
