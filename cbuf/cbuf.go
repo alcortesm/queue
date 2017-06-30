@@ -22,22 +22,15 @@ type CBuf struct {
 // New returns a new CBuf implementing a bounded queue.Queue of the
 // given capacity and a nil error.  It returns nil and an error if the
 // given capacity is a negative integer.
-//
-// The allocation of the memory to store all the elements is delayed
-// until the first enqueue operation.
 func New(capacity int) (queue.Queue, error) {
 	if capacity < 0 {
 		return nil, fmt.Errorf("capacity must be 0 or positive, was %d",
 			capacity)
 	}
-	return &CBuf{cap: capacity}, nil
-}
-
-func (c *CBuf) lazyElems() []interface{} {
-	if c.elems == nil {
-		c.elems = make([]interface{}, c.cap)
-	}
-	return c.elems
+	return &CBuf{
+		cap:   capacity,
+		elems: make([]interface{}, capacity),
+	}, nil
 }
 
 // Implements queue.Queue.  CBuf queues are always bounded, which means this
@@ -79,8 +72,7 @@ func (c *CBuf) Enqueue(e interface{}) error {
 	if c.len == c.cap {
 		return queue.ErrFull
 	}
-	elems := c.lazyElems()
-	elems[c.tail()] = e
+	c.elems[c.tail()] = e
 	c.len++
 	return nil
 }
