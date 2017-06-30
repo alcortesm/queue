@@ -1,6 +1,7 @@
 /*
 Package cbuf implements a bounded Queue interface using a fixed
-capacity, in memory, circular buffer.
+capacity, in memory, circular buffer that get allocated whole upon
+construction.
 
 This implementation is not thread-safe.
 */
