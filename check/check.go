@@ -44,11 +44,11 @@ func CapInfinite(t *testing.T, q queue.Queue, context string) {
 func CapBounded(t *testing.T, q queue.Queue, expected int, context string) {
 	obtained, err := q.Cap()
 	if err != nil {
-		msg := fmt.Sprintf("unexpected error calling Cap: %s", err)
+		msg := fmt.Sprintf("unexpected error calling Cap: %q", err)
 		error(t, context, msg)
 	}
 	if obtained != expected {
-		msg := fmt.Sprintf("wrong Cap: expected %d, got %d",
+		msg := fmt.Sprintf("wrong capacity: expected %d, got %d",
 			expected, obtained)
 		error(t, context, msg)
 	}
