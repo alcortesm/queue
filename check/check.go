@@ -63,19 +63,19 @@ func Len(t *testing.T, q queue.Queue, expected int, context string) {
 	}
 }
 
-func Empty(t *testing.T, q queue.Queue, expected bool, context string) {
-	obtained := q.Empty()
+func IsEmpty(t *testing.T, q queue.Queue, expected bool, context string) {
+	obtained := q.IsEmpty()
 	if obtained != expected {
-		msg := fmt.Sprintf("wrong Empty: expected %t, got %t",
+		msg := fmt.Sprintf("wrong IsEmpty: expected %t, got %t",
 			expected, obtained)
 		error(t, context, msg)
 	}
 }
 
-func Full(t *testing.T, q queue.Queue, expected bool, context string) {
-	obtained := q.Full()
+func IsFull(t *testing.T, q queue.Queue, expected bool, context string) {
+	obtained := q.IsFull()
 	if obtained != expected {
-		msg := fmt.Sprintf("wrong Full: expected %t, got %t",
+		msg := fmt.Sprintf("wrong IsFull: expected %t, got %t",
 			expected, obtained)
 		error(t, context, msg)
 	}
@@ -98,7 +98,7 @@ func ErrorWhenCapIsReached(t *testing.T, q queue.Queue, context string) {
 			error(t, context, msg)
 		}
 	}
-	Full(t, q, true, context)
+	IsFull(t, q, true, context)
 	// check that enqueueing once more gives ErrFull
 	err = q.Enqueue(0)
 	if err == nil {

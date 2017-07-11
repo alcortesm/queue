@@ -51,12 +51,12 @@ func (c *CBuf) Len() int {
 }
 
 // Implements queue.Queue.
-func (c *CBuf) Empty() bool {
+func (c *CBuf) IsEmpty() bool {
 	return c.len == 0
 }
 
 // Implements queue.Queue.
-func (c *CBuf) Full() bool {
+func (c *CBuf) IsFull() bool {
 	return c.len == c.cap
 }
 

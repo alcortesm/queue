@@ -37,11 +37,11 @@ type Queue interface {
 	Cap() (int, error)
 	// Len returns the number of elements currently in the queue.
 	Len() int
-	// Empty returns if the queue is empty, this is, if Len is 0.
-	Empty() bool
-	// Full returns if there is not enough capacity in the queue to
+	// IsEmpty returns if the queue is empty, this is, if Len is 0.
+	IsEmpty() bool
+	// IsFull returns if there is not enough capacity in the queue to
 	// store more elements.  Infinite queues always return false.
-	Full() bool
+	IsFull() bool
 	// Enqueue try to add the given element at the back of the queue and
 	// returns a nil error on success.  It returns ErrFull on a full
 	// bounded queue.  Infinite queues should not panic if they cannot enqueue

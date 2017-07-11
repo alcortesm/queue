@@ -84,7 +84,7 @@ func TestInitiallyNotEmpty(t *testing.T) {
 		{"two", 2, true},
 		{"ten", 10, true},
 	} {
-		check.Empty(t,
+		check.IsEmpty(t,
 			mustNew(t, test.capacity),
 			test.expected,
 			test.context)
@@ -102,7 +102,7 @@ func TestInitiallyFull(t *testing.T) {
 		{"two", 2, false},
 		{"ten", 10, false},
 	} {
-		check.Full(t,
+		check.IsFull(t,
 			mustNew(t, test.capacity),
 			test.expected,
 			test.context)
