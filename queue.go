@@ -40,11 +40,7 @@ type Queue interface {
 	// Empty returns if the queue is empty, this is, if Len is 0.
 	Empty() bool
 	// Full returns if there is not enough capacity in the queue to
-	// store any more element.
-	//
-	// Infinite queues always return false, as they are never full.
-	// Please note how an enqueue call on an infite queue can still fail
-	// for other reasons.
+	// store more elements.  Infinite queues always return false.
 	Full() bool
 	// Enqueue try to add the given element at the back of the queue and
 	// returns a nil error on success.  It returns ErrFull on a full
