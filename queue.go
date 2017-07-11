@@ -62,7 +62,7 @@ type Queue interface {
 }
 
 var (
-	// ErrInfinite is returned by Capacity if the queue is infinite.
+	// ErrInfinite is returned by Cap if the queue is infinite.
 	ErrInfinite = errors.New("infinite queue")
 	// ErrFull is returned when trying to enqueue to a full bounded queue.
 	ErrFull = errors.New("full queue")
