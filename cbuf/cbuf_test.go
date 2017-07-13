@@ -20,7 +20,7 @@ func mustNew(t *testing.T, n int) queue.Queue {
 	return q
 }
 
-func TestBoundedZero(t *testing.T) {
+func TestBounded(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
@@ -42,16 +42,16 @@ func TestCap(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
-		expected int
 	}{
-		{"zero", 0, 0},
-		{"one", 1, 1},
-		{"two", 2, 2},
-		{"ten", 10, 10},
+		{"zero", 0},
+		{"one", 1},
+		{"two", 2},
+		{"ten", 10},
 	} {
+		expected := test.capacity
 		check.CapBounded(t,
 			mustNew(t, test.capacity),
-			test.expected,
+			expected,
 			test.context)
 	}
 }
@@ -73,7 +73,7 @@ func TestInitiallyLenIsZero(t *testing.T) {
 	}
 }
 
-func TestInitiallyNotEmpty(t *testing.T) {
+func TestInitiallyIsEmpty(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
@@ -91,13 +91,13 @@ func TestInitiallyNotEmpty(t *testing.T) {
 	}
 }
 
-func TestInitiallyFull(t *testing.T) {
+func TestInitiallyAreNotFull(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
 		expected bool
 	}{
-		{"zero", 0, true},
+		{"zero", 0, true}, // zero capacity bounded queues are always full
 		{"one", 1, false},
 		{"two", 2, false},
 		{"ten", 10, false},
