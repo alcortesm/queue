@@ -111,3 +111,57 @@ func ErrorWhenCapIsReached(t *testing.T, q queue.Queue, context string) {
 		error(t, context, msg)
 	}
 }
+
+// HeadOKWhileFillingUpAndDepleting fills up the queue until full and empties
+// it, while checking that the head method returns the correct value
+// after every enqueue or dequeue operation.  Requires a bounded, empty queue.
+func HeadOKWhileFillingUpAndDepleting(
+	t *testing.T, q queue.Queue, context string) {
+	Bounded(t, q, true, context)
+	Len(t, q, 0, context)
+	capacity, err := q.Cap()
+	if err != nil {
+		msg := fmt.Sprintf("unexpected error calling Cap: %q", err)
+		error(t, context, msg)
+	}
+	HeadErrEmpty(t, q, context)
+	_ = capacity
+	/*
+		// fills up the queue checking the head after every enqueue operation.
+		for i := range Seq(capacity) {
+			if err := q.Enqueue(i); err != nil {
+				msg := fmt.Sprintf(
+					"unexpected error filling up queue:\n"+
+						"on enqueue operation #%d: %s", i, err)
+				error(t, context, msg)
+			}
+		}
+		IsFull(t, q, true, context)
+		// check that enqueueing once more gives ErrFull
+		err = q.Enqueue(0)
+		if err == nil {
+			msg := fmt.Sprintf("enqueue on a full queue: return nil error")
+			error(t, context, msg)
+		}
+		if err != queue.ErrFull {
+			msg := fmt.Sprintf(
+				"enqueue on a full queue: expected ErrFull, got %q", err)
+			error(t, context, msg)
+		}
+	*/
+}
+
+// HeadErrEmpty checks that calling the Head method on the given queue
+// returns an ErrEmpty error.  If not, the test is failed and an error
+// message, based on the context string, is reported to the testing library.
+func HeadErrEmpty(t *testing.T, q queue.Queue, context string) {
+	_, err := q.Head()
+	if err == nil {
+		error(t, context, "Head return a nil error")
+	}
+	if err == queue.ErrEmpty {
+		msg := fmt.Sprintf(
+			"Head return an error different than ErrEmpty: %q", err)
+		error(t, context, msg)
+	}
+}

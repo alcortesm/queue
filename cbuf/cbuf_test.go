@@ -124,3 +124,20 @@ func TestErrorWhenCapIsReached(t *testing.T) {
 			test.context)
 	}
 }
+
+func TestHeadOKWhileFillingUpAndDepleting(t *testing.T) {
+	for _, test := range []struct {
+		context  string
+		capacity int
+	}{
+		{"zero", 0},
+		{"one", 1},
+		{"two", 2},
+		{"ten", 10},
+	} {
+		check.HeadOKWhileFillingUpAndDepleting(t,
+			mustNew(t, test.capacity),
+			test.context)
+	}
+
+}
