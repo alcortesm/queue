@@ -57,7 +57,7 @@ func TestCap(t *testing.T) {
 		{"ten", 10},
 	} {
 		expected := test.capacity
-		check.CapBounded(t,
+		check.Cap(t,
 			mustNew(t, test.capacity),
 			expected,
 			test.context)
@@ -150,7 +150,7 @@ func TestAllWhileFillingUpAndDepleting(t *testing.T) {
 			check.Len(t, q, i, context)
 			check.Enqueue(t, q, i, context)
 			check.IsEmpty(t, q, false, context)
-			check.CapBounded(t, q, test.capacity, context)
+			check.Cap(t, q, test.capacity, context)
 			check.Head(t, q, 0, context)
 			check.Head(t, q, 0, context) // head should not extract
 		}
@@ -163,7 +163,7 @@ func TestAllWhileFillingUpAndDepleting(t *testing.T) {
 			context := fmt.Sprintf("%s: dequeuing %d", test.context, i)
 			check.IsEmpty(t, q, false, context)
 			check.Len(t, q, test.capacity-i, context)
-			check.CapBounded(t, q, test.capacity, context)
+			check.Cap(t, q, test.capacity, context)
 			check.Head(t, q, i, context)
 			check.Head(t, q, i, context) // head should not extract
 			check.Dequeue(t, q, i, context)

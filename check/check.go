@@ -20,7 +20,7 @@ func IsBounded(t *testing.T, q queue.Queue, expected bool, context string) {
 	}
 }
 
-func CapInfinite(t *testing.T, q queue.Queue, context string) {
+func CapErrInfinite(t *testing.T, q queue.Queue, context string) {
 	capacity, err := q.Cap()
 	if err == nil {
 		msg := fmt.Sprintf("nil error calling Cap, "+
@@ -33,7 +33,7 @@ func CapInfinite(t *testing.T, q queue.Queue, context string) {
 	}
 }
 
-func CapBounded(t *testing.T, q queue.Queue, expected int, context string) {
+func Cap(t *testing.T, q queue.Queue, expected int, context string) {
 	obtained, err := q.Cap()
 	if err != nil {
 		msg := fmt.Sprintf("unexpected error calling Cap: %q", err)
