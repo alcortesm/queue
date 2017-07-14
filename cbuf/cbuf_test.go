@@ -91,6 +91,31 @@ func TestInitiallyIsEmpty(t *testing.T) {
 	}
 }
 
+func TestHeadReturnsErrEmptyWhenEmpty(t *testing.T) {
+	for _, test := range []struct {
+		context  string
+		capacity int
+	}{
+		{"one", 0},
+		{"one", 1},
+		{"two", 2},
+		{"ten", 10},
+	} {
+		q := mustNew(t, test.capacity)
+		check.IsEmpty(t, q, true, test.context)
+		check.HeadErrEmpty(t, q, test.context)
+		check.FillEmptyWithNumbers(t, q, test.context)
+		check.DepleteFullExpectingNumbers(t, q, test.context)
+		check.IsEmpty(t, q, true, test.context)
+		check.HeadErrEmpty(t, q, test.context)
+		// again
+		check.FillEmptyWithNumbers(t, q, test.context)
+		check.DepleteFullExpectingNumbers(t, q, test.context)
+		check.IsEmpty(t, q, true, test.context)
+		check.HeadErrEmpty(t, q, test.context)
+	}
+}
+
 func TestInitiallyAreNotFull(t *testing.T) {
 	for _, test := range []struct {
 		context  string
