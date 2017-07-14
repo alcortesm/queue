@@ -1,6 +1,7 @@
 package cbuf_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/alcortesm/queue"
@@ -131,7 +132,7 @@ func TestFull(t *testing.T) {
 	}
 }
 
-func TestHeadOKWhileFillingUpAndDepleting(t *testing.T) {
+func TestAllWhileFillingUpAndDepleting(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
@@ -142,22 +143,36 @@ func TestHeadOKWhileFillingUpAndDepleting(t *testing.T) {
 		{"ten", 10},
 	} {
 		q := mustNew(t, test.capacity)
-		check.IsEmpty(t, q, true, test.context)
-		check.HeadErrEmpty(t, q, test.context)
 		// fill it up with numbers
 		for i := 0; i < test.capacity; i++ {
-			check.Enqueue(t, q, i, test.context)
-			check.Head(t, q, 0, test.context)
-			check.Head(t, q, 0, test.context) // head should not extract
+			context := fmt.Sprintf("%s: enqueuing %d", test.context, i)
+			check.IsFull(t, q, false, context)
+			check.Len(t, q, i, context)
+			check.Enqueue(t, q, i, context)
+			check.IsEmpty(t, q, false, context)
+			check.CapBounded(t, q, test.capacity, context)
+			check.Head(t, q, 0, context)
+			check.Head(t, q, 0, context) // head should not extract
 		}
-		check.IsFull(t, q, true, test.context)
+		context := test.context + ": filled up"
+		check.IsFull(t, q, true, context)
+		check.Len(t, q, test.capacity, context)
+		check.EnqueueErrFull(t, q, context)
 		// extract all numbers
 		for i := 0; i < test.capacity; i++ {
-			check.Head(t, q, i, test.context)
-			check.Head(t, q, i, test.context) // head should not extract
-			check.Dequeue(t, q, i, test.context)
+			context := fmt.Sprintf("%s: dequeuing %d", test.context, i)
+			check.IsEmpty(t, q, false, context)
+			check.Len(t, q, test.capacity-i, context)
+			check.CapBounded(t, q, test.capacity, context)
+			check.Head(t, q, i, context)
+			check.Head(t, q, i, context) // head should not extract
+			check.Dequeue(t, q, i, context)
+			check.IsFull(t, q, false, context)
 		}
+		context = test.context + ": depleted"
 		check.IsEmpty(t, q, true, test.context)
+		check.Len(t, q, 0, test.context)
 		check.HeadErrEmpty(t, q, test.context)
+		check.DequeueErrEmpty(t, q, test.context)
 	}
 }
