@@ -107,7 +107,7 @@ func TestInitiallyAreNotFull(t *testing.T) {
 	}
 }
 
-func TestEnqueueErrFull(t *testing.T) {
+func TestFull(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
@@ -119,6 +119,7 @@ func TestEnqueueErrFull(t *testing.T) {
 	} {
 		q := mustNew(t, test.capacity)
 		check.FillEmptyWithNumbers(t, q, test.context)
+		check.IsFull(t, q, true, test.context)
 		check.EnqueueErrFull(t, q, test.context)
 	}
 }
