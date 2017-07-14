@@ -7,14 +7,6 @@ import (
 	"github.com/alcortesm/queue"
 )
 
-func Seq(n int) []int {
-	ret := make([]int, n)
-	for i, _ := range ret {
-		ret[i] = i
-	}
-	return ret
-}
-
 func error(t *testing.T, ctx string, msg string) {
 	t.Errorf("context: %q\n %s", ctx, msg)
 }
@@ -90,7 +82,7 @@ func ErrorWhenCapIsReached(t *testing.T, q queue.Queue, context string) {
 		error(t, context, msg)
 	}
 	// fill up the queue
-	for i := range Seq(capacity) {
+	for i := 0; i < capacity; i++ {
 		if err := q.Enqueue(i); err != nil {
 			msg := fmt.Sprintf(
 				"unexpected error filling up queue:\n"+
@@ -218,8 +210,8 @@ func FillEmptyWithNumbers(t *testing.T, q queue.Queue, context string) {
 		msg := fmt.Sprintf("unexpected error getting capacity: %q", err)
 		error(t, context, msg)
 	}
-	for _, e := range Seq(cap) {
-		Enqueue(t, q, e, context)
+	for i := 0; i < cap; i++ {
+		Enqueue(t, q, i, context)
 	}
 	IsFull(t, q, true, context)
 }
@@ -237,8 +229,8 @@ func DepleteFullExpectingNumbers(t *testing.T, q queue.Queue, context string) {
 		msg := fmt.Sprintf("unexpected error getting capacity: %q", err)
 		error(t, context, msg)
 	}
-	for _, e := range Seq(cap) {
-		Dequeue(t, q, e, context)
+	for i := 0; i < cap; i++ {
+		Dequeue(t, q, i, context)
 	}
 	IsEmpty(t, q, true, context)
 }
