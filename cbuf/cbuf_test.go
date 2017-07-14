@@ -56,7 +56,7 @@ func TestCap(t *testing.T) {
 	}
 }
 
-func TestEmptIsCorrectlyDetected(t *testing.T) {
+func TestEmptyIsCorrectlyDetected(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
