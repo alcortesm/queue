@@ -20,6 +20,13 @@ func mustNew(t *testing.T, n int) queue.Queue {
 	return q
 }
 
+func TestNewFailsWithNegativeCapacity(t *testing.T) {
+	_, err := cbuf.New(-1)
+	if err == nil {
+		t.Errorf("new: negative capacity: expected error, got nil error")
+	}
+}
+
 func TestIsBounded(t *testing.T) {
 	for _, test := range []struct {
 		context  string
