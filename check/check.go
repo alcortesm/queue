@@ -199,6 +199,21 @@ func Dequeue(t *testing.T, q queue.Queue, e int, context string) {
 	}
 }
 
+// DequeueErrEmpty checks that calling the Dequeue method on the given queue
+// returns an ErrEmpty error.  If not, the test is failed and an error
+// message, based on the context string, is reported to the testing library.
+func DequeueErrEmpty(t *testing.T, q queue.Queue, context string) {
+	_, err := q.Dequeue()
+	if err == nil {
+		error(t, context, "dequeue returned a nil error")
+	}
+	if err != queue.ErrEmpty {
+		msg := fmt.Sprintf(
+			"dequeue returned an error different than ErrEmpty: %q", err)
+		error(t, context, msg)
+	}
+}
+
 // FillWithNumbers enqueues consecutive numbers, starting from 0 into
 // the given queue until it is full, checking that all enqueue
 // operations are successful.  It expects a empty bounded queue.

@@ -56,42 +56,7 @@ func TestCap(t *testing.T) {
 	}
 }
 
-func TestInitiallyLenIsZero(t *testing.T) {
-	for _, test := range []struct {
-		context  string
-		capacity int
-	}{
-		{"zero", 0},
-		{"one", 1},
-		{"two", 2},
-		{"ten", 10},
-	} {
-		check.Len(t,
-			mustNew(t, test.capacity),
-			0,
-			test.context)
-	}
-}
-
-func TestInitiallyIsEmpty(t *testing.T) {
-	for _, test := range []struct {
-		context  string
-		capacity int
-		expected bool
-	}{
-		{"one", 0, true},
-		{"one", 1, true},
-		{"two", 2, true},
-		{"ten", 10, true},
-	} {
-		check.IsEmpty(t,
-			mustNew(t, test.capacity),
-			test.expected,
-			test.context)
-	}
-}
-
-func TestHeadReturnsErrEmptyWhenEmpty(t *testing.T) {
+func TestEmptIsCorrectlyDetected(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
@@ -102,17 +67,25 @@ func TestHeadReturnsErrEmptyWhenEmpty(t *testing.T) {
 		{"ten", 10},
 	} {
 		q := mustNew(t, test.capacity)
+		// it must be empty initially...
 		check.IsEmpty(t, q, true, test.context)
+		check.Len(t, q, 0, test.context)
 		check.HeadErrEmpty(t, q, test.context)
+		check.DequeueErrEmpty(t, q, test.context)
+		// and also if filled and depleted...
 		check.FillEmptyWithNumbers(t, q, test.context)
 		check.DepleteFullExpectingNumbers(t, q, test.context)
 		check.IsEmpty(t, q, true, test.context)
+		check.Len(t, q, 0, test.context)
 		check.HeadErrEmpty(t, q, test.context)
-		// again
+		check.DequeueErrEmpty(t, q, test.context)
+		// and even if filled and depleted a second time...
 		check.FillEmptyWithNumbers(t, q, test.context)
 		check.DepleteFullExpectingNumbers(t, q, test.context)
 		check.IsEmpty(t, q, true, test.context)
+		check.Len(t, q, 0, test.context)
 		check.HeadErrEmpty(t, q, test.context)
+		check.DequeueErrEmpty(t, q, test.context)
 	}
 }
 
