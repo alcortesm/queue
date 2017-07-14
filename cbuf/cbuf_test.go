@@ -134,9 +134,23 @@ func TestHeadOKWhileFillingUpAndDepleting(t *testing.T) {
 		{"two", 2},
 		{"ten", 10},
 	} {
-		check.HeadOKWhileFillingUpAndDepleting(t,
-			mustNew(t, test.capacity),
-			test.context)
+		q := mustNew(t, test.capacity)
+		check.IsEmpty(t, q, true, test.context)
+		check.HeadErrEmpty(t, q, test.context)
+		// fill it up with numbers
+		for i := 0; i < test.capacity; i++ {
+			check.Enqueue(t, q, i, test.context)
+			check.Head(t, q, 0, test.context)
+			check.Head(t, q, 0, test.context) // head should not extract
+		}
+		check.IsFull(t, q, true, test.context)
+		// extract all numbers
+		for i := 0; i < test.capacity; i++ {
+			check.Head(t, q, i, test.context)
+			check.Head(t, q, i, test.context) // head should not extract
+			check.Dequeue(t, q, i, test.context)
+		}
+		check.IsEmpty(t, q, true, test.context)
+		check.HeadErrEmpty(t, q, test.context)
 	}
-
 }

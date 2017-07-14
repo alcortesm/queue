@@ -85,36 +85,6 @@ func EnqueueErrFull(t *testing.T, q queue.Queue, context string) {
 	}
 }
 
-// HeadOKWhileFillingUpAndDepleting fills up the queue until full and empties
-// it, while checking that the head method returns the correct value
-// after every enqueue or dequeue operation.  Requires a bounded, empty queue.
-func HeadOKWhileFillingUpAndDepleting(
-	t *testing.T, q queue.Queue, context string) {
-	IsBounded(t, q, true, context)
-	IsEmpty(t, q, true, context)
-	capacity, err := q.Cap()
-	if err != nil {
-		msg := fmt.Sprintf("unexpected error calling Cap: %q", err)
-		error(t, context, msg)
-	}
-	HeadErrEmpty(t, q, context)
-	// fill it up with numbers
-	for i := 0; i < capacity; i++ {
-		Enqueue(t, q, i, context)
-		Head(t, q, 0, context)
-		Head(t, q, 0, context) // head should not extract
-	}
-	IsFull(t, q, true, context)
-	// extract all numbers
-	for i := 0; i < capacity; i++ {
-		Head(t, q, i, context)
-		Head(t, q, i, context) // head should not extract
-		Dequeue(t, q, i, context)
-	}
-	IsEmpty(t, q, true, context)
-	HeadErrEmpty(t, q, context)
-}
-
 // HeadErrEmpty checks that calling the Head method on the given queue
 // returns an ErrEmpty error.  If not, the test is failed and an error
 // message, based on the context string, is reported to the testing library.
