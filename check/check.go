@@ -19,8 +19,8 @@ func error(t *testing.T, ctx string, msg string) {
 	t.Errorf("context: %q\n %s", ctx, msg)
 }
 
-func Bounded(t *testing.T, q queue.Queue, expected bool, context string) {
-	obtained := q.Bounded()
+func IsBounded(t *testing.T, q queue.Queue, expected bool, context string) {
+	obtained := q.IsBounded()
 	if obtained != expected {
 		msg := fmt.Sprintf("wrong bounded info: expected %t, got %t",
 			expected, obtained)
@@ -82,7 +82,7 @@ func IsFull(t *testing.T, q queue.Queue, expected bool, context string) {
 }
 
 func ErrorWhenCapIsReached(t *testing.T, q queue.Queue, context string) {
-	Bounded(t, q, true, context)
+	IsBounded(t, q, true, context)
 	Len(t, q, 0, context)
 	capacity, err := q.Cap()
 	if err != nil {
@@ -117,7 +117,7 @@ func ErrorWhenCapIsReached(t *testing.T, q queue.Queue, context string) {
 // after every enqueue or dequeue operation.  Requires a bounded, empty queue.
 func HeadOKWhileFillingUpAndDepleting(
 	t *testing.T, q queue.Queue, context string) {
-	Bounded(t, q, true, context)
+	IsBounded(t, q, true, context)
 	IsEmpty(t, q, true, context)
 	capacity, err := q.Cap()
 	if err != nil {
@@ -211,7 +211,7 @@ func Dequeue(t *testing.T, q queue.Queue, e int, context string) {
 // the given queue until it is full, checking that all enqueue
 // operations are successful.  It expects a empty bounded queue.
 func FillEmptyWithNumbers(t *testing.T, q queue.Queue, context string) {
-	Bounded(t, q, true, context)
+	IsBounded(t, q, true, context)
 	IsEmpty(t, q, true, context)
 	cap, err := q.Cap()
 	if err != nil {
@@ -230,7 +230,7 @@ func FillEmptyWithNumbers(t *testing.T, q queue.Queue, context string) {
 // numbers, checking that all operations are successful and that the numbers
 // are extracted in the right order (0..capacity-1).
 func DepleteFullExpectingNumbers(t *testing.T, q queue.Queue, context string) {
-	Bounded(t, q, true, context)
+	IsBounded(t, q, true, context)
 	IsFull(t, q, true, context)
 	cap, err := q.Cap()
 	if err != nil {

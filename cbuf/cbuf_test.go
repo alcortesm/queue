@@ -20,7 +20,7 @@ func mustNew(t *testing.T, n int) queue.Queue {
 	return q
 }
 
-func TestBounded(t *testing.T) {
+func TestIsBounded(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
@@ -31,7 +31,7 @@ func TestBounded(t *testing.T) {
 		{"two", 2, true},
 		{"ten", 10, true},
 	} {
-		check.Bounded(t,
+		check.IsBounded(t,
 			mustNew(t, test.capacity),
 			test.expected,
 			test.context)

@@ -36,7 +36,7 @@ func New(capacity int) (queue.Queue, error) {
 
 // Implements queue.Queue.  CBuf queues are always bounded, which means this
 // method always return true.
-func (c *CBuf) Bounded() bool {
+func (c *CBuf) IsBounded() bool {
 	return true
 }
 

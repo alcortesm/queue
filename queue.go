@@ -28,9 +28,9 @@ import "errors"
 // This interface makes no assumtions about the thread safety of its
 // implementations.
 type Queue interface {
-	// Bounded returns true if the queue has fixed capacity and false if
+	// IsBounded returns true if the queue has fixed capacity and false if
 	// it is infinite.
-	Bounded() bool
+	IsBounded() bool
 	// Cap returns the capacity of the queue and nil for bounded queues.
 	// On infinite queues it returns 0 and ErrInfinite.  The capacity of
 	// bounded queues will be 0 or a positive integer.
