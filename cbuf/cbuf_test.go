@@ -107,7 +107,7 @@ func TestInitiallyAreNotFull(t *testing.T) {
 	}
 }
 
-func TestErrorWhenCapIsReached(t *testing.T) {
+func TestEnqueueErrFull(t *testing.T) {
 	for _, test := range []struct {
 		context  string
 		capacity int
@@ -117,9 +117,9 @@ func TestErrorWhenCapIsReached(t *testing.T) {
 		{"two", 2},
 		{"ten", 10},
 	} {
-		check.ErrorWhenCapIsReached(t,
-			mustNew(t, test.capacity),
-			test.context)
+		q := mustNew(t, test.capacity)
+		check.FillEmptyWithNumbers(t, q, test.context)
+		check.EnqueueErrFull(t, q, test.context)
 	}
 }
 
