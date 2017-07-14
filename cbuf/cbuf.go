@@ -65,7 +65,7 @@ func (c *CBuf) next(n int) int {
 }
 
 func (c *CBuf) tail() int {
-	return (c.head + c.len - 1) % c.cap
+	return (c.head + c.len) % c.cap
 }
 
 // Implements queue.Queue.
@@ -73,11 +73,7 @@ func (c *CBuf) Enqueue(e interface{}) error {
 	if c.len == c.cap {
 		return queue.ErrFull
 	}
-	if c.len == 0 {
-		c.elems[c.head] = e
-	} else {
-		c.elems[c.tail()] = e
-	}
+	c.elems[c.tail()] = e
 	c.len++
 	return nil
 }
@@ -96,7 +92,9 @@ func (c *CBuf) Dequeue() (interface{}, error) {
 		return nil, queue.ErrEmpty
 	}
 	ret := c.elems[c.head]
-	c.elems[c.head] = nil
+	if c.len > 1 {
+		c.head = c.next(c.head)
+	}
 	c.len--
 	return ret, nil
 }
