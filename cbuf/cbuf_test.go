@@ -62,6 +62,13 @@ func TestOneElementNotFull(t *testing.T) {
 	}
 }
 
+func TestZeroCapacityIsEmptyAndFull(t *testing.T) {
+	q := mustNew(t, 0)
+	noCtx := ""
+	check.IsEmpty(t, q, true, noCtx)
+	check.EnqueueErrFull(t, q, noCtx)
+}
+
 func TestFull(t *testing.T) {
 	for _, test := range []struct {
 		context  string

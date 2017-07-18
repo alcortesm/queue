@@ -1,7 +1,6 @@
 /*
-Package cbuf implements a bounded Queue interface using a fixed
-capacity, in memory, circular buffer that gets allocated upon
-construction.
+Package cbuf implements queue.Queue with a fixed capacity, in memory,
+circular buffer that gets allocated upon construction.
 
 This implementation is not thread-safe.
 */
@@ -13,6 +12,8 @@ import (
 	"github.com/alcortesm/queue"
 )
 
+// CBuf values are circular buffers of constant size.  They are not zero
+// value safe, use the New function below to instantiate them.
 type CBuf struct {
 	cap   int
 	len   int
@@ -20,9 +21,10 @@ type CBuf struct {
 	head  int
 }
 
-// New returns a new CBuf implementing a bounded queue.Queue of the
-// given capacity and a nil error.  It returns nil and an error if the
-// given capacity is a negative integer.
+// New returns a new circular buffer of the given capacity and a nil
+// error on success.  If the capacity is negative it returns nil and an
+// error.  Zero capacity buffers are allowed; they will be empty and
+// full at the same time.
 func New(capacity int) (queue.Queue, error) {
 	if capacity < 0 {
 		return nil, fmt.Errorf("negative capacity (%d)",
