@@ -21,7 +21,7 @@ type Queue interface {
 	Enqueue(interface{}) error
 	// Head returns the first element in the queue and a nil error on
 	// success.  It returns nil and an error on failure.  The error will
-	// be ErrEmpty if the queue was originally empty.
+	// be ErrEmpty if the queue was originally empty.  Head is idempotent.
 	Head() (interface{}, error)
 	// Dequeue extracts and returns the first element in the queue and a
 	// nil error on success.  It returns nil and an error on failure.

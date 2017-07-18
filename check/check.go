@@ -29,11 +29,6 @@ func IsEmpty(t *testing.T, q queue.Queue, expected bool, context string) {
 	}
 }
 
-func isFull(t *testing.T, q queue.Queue, context string) {
-	err := q.Enqueue(0)
-	return err == queue.ErrFull
-}
-
 // HeadErrEmpty checks that calling the Head method on the given queue
 // returns an ErrEmpty error.  If not, the test is failed and an error
 // message, based on the context string, is reported to the testing
@@ -76,6 +71,17 @@ func Head(t *testing.T, q queue.Queue, e int, context string) {
 func Enqueue(t *testing.T, q queue.Queue, e int, context string) {
 	if err := q.Enqueue(e); err != nil {
 		msg := fmt.Sprintf("enqueue: unexpected error: %q", err)
+		error(t, context, msg)
+	}
+}
+
+// EnqueueErrFull checks that trying to enqueue a number in the queue
+// returns the error queue.ErrFull.  Otherwise, an error is notified to
+// the test library using an error message prefixed with the context
+// string.
+func EnqueueErrFull(t *testing.T, q queue.Queue, context string) {
+	if err := q.Enqueue(0); err != queue.ErrFull {
+		msg := fmt.Sprintf("enqueue: expected ErrFull, got %q", err)
 		error(t, context, msg)
 	}
 }
@@ -129,18 +135,16 @@ func DequeueAll(t *testing.T, q queue.Queue, expected []int, context string) {
 	}
 }
 
+// Seq returns a slice with the natural numbers from min(a,b) (included)
+// to max(a,b) (not included), sorted in ascending order.
 func Seq(a, b int) []int {
-	begin := a
-	end := b
-	step := 1
-	if j < i {
-		begin = b
-		end = a
-		step = -1
+	if b < a {
+		b, a = a, b
 	}
-	count = end - begin + 1
+	count := b - a
 	ret := make([]int, count)
-	for i := 0; i <= count; i++ {
-		ret[i] = begin + i
+	for i := 0; i < count; i++ {
+		ret[i] = a + i
 	}
+	return ret
 }
