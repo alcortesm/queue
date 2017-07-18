@@ -29,6 +29,11 @@ type Queue interface {
 	Dequeue() (interface{}, error)
 }
 
-// ErrEmpty is returned by the Head and Dequeue methods if the queue was
-// originally empty.
-var ErrEmpty = errors.New("empty queue")
+var (
+	// ErrEmpty is returned by the Head and Dequeue methods if the queue
+	// was originally empty.
+	ErrEmpty = errors.New("empty queue")
+	// ErrFull is returned by Enqueue when there in not enough resources
+	// to accommodate the given element.
+	ErrFull = errors.New("full queue")
+)
