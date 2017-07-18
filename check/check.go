@@ -11,41 +11,6 @@ func error(t *testing.T, ctx string, msg string) {
 	t.Errorf("context: %q\n %s", ctx, msg)
 }
 
-func IsBounded(t *testing.T, q queue.Queue, expected bool, context string) {
-	obtained := q.IsBounded()
-	if obtained != expected {
-		msg := fmt.Sprintf("wrong bounded info: expected %t, got %t",
-			expected, obtained)
-		error(t, context, msg)
-	}
-}
-
-func CapErrInfinite(t *testing.T, q queue.Queue, context string) {
-	capacity, err := q.Cap()
-	if err == nil {
-		msg := fmt.Sprintf("nil error calling Cap, "+
-			"ErrInfinite was expected, capacity was %d",
-			capacity)
-		error(t, context, msg)
-	}
-	if err != queue.ErrInfinite {
-		t.Errorf("%swrong error calling Cap: %s", context, err)
-	}
-}
-
-func Cap(t *testing.T, q queue.Queue, expected int, context string) {
-	obtained, err := q.Cap()
-	if err != nil {
-		msg := fmt.Sprintf("unexpected error calling Cap: %q", err)
-		error(t, context, msg)
-	}
-	if obtained != expected {
-		msg := fmt.Sprintf("wrong capacity: expected %d, got %d",
-			expected, obtained)
-		error(t, context, msg)
-	}
-}
-
 func Len(t *testing.T, q queue.Queue, expected int, context string) {
 	obtained := q.Len()
 	if obtained != expected {
@@ -64,30 +29,15 @@ func IsEmpty(t *testing.T, q queue.Queue, expected bool, context string) {
 	}
 }
 
-func IsFull(t *testing.T, q queue.Queue, expected bool, context string) {
-	obtained := q.IsFull()
-	if obtained != expected {
-		msg := fmt.Sprintf("wrong IsFull: expected %t, got %t",
-			expected, obtained)
-		error(t, context, msg)
-	}
-}
-
-func EnqueueErrFull(t *testing.T, q queue.Queue, context string) {
+func isFull(t *testing.T, q queue.Queue, context string) {
 	err := q.Enqueue(0)
-	if err == nil {
-		error(t, context, "enqueue: nil error, expected ErrFull")
-	}
-	if err != queue.ErrFull {
-		msg := fmt.Sprintf(
-			"enqueue: expected ErrFull, got %q", err)
-		error(t, context, msg)
-	}
+	return err == queue.ErrFull
 }
 
 // HeadErrEmpty checks that calling the Head method on the given queue
 // returns an ErrEmpty error.  If not, the test is failed and an error
-// message, based on the context string, is reported to the testing library.
+// message, based on the context string, is reported to the testing
+// library.
 func HeadErrEmpty(t *testing.T, q queue.Queue, context string) {
 	_, err := q.Head()
 	if err == nil {
@@ -165,38 +115,32 @@ func DequeueErrEmpty(t *testing.T, q queue.Queue, context string) {
 	}
 }
 
-// FillWithNumbers enqueues consecutive numbers, starting from 0 into
-// the given queue until it is full, checking that all enqueue
-// operations are successful.  It expects a empty bounded queue.
-func FillEmptyWithNumbers(t *testing.T, q queue.Queue, context string) {
-	IsBounded(t, q, true, context)
-	IsEmpty(t, q, true, context)
-	cap, err := q.Cap()
-	if err != nil {
-		msg := fmt.Sprintf("unexpected error getting capacity: %q", err)
-		error(t, context, msg)
+func EnqueueAll(t *testing.T, q queue.Queue, data []int, context string) {
+	for i, e := range data {
+		innerCtx := fmt.Sprintf("%s: element %d", context, i)
+		Enqueue(t, q, e, innerCtx)
 	}
-	for i := 0; i < cap; i++ {
-		Enqueue(t, q, i, context)
-	}
-	IsFull(t, q, true, context)
 }
 
-// DepleteFullExpectingNumbers receives a bounded queue full of numbers,
-// sorted from 0 at the head, to capacity-1 at the tail, this is,
-// exactly as FillWithNumbers will do.  This function will dequeue all the
-// numbers, checking that all operations are successful and that the numbers
-// are extracted in the right order (0..capacity-1).
-func DepleteFullExpectingNumbers(t *testing.T, q queue.Queue, context string) {
-	IsBounded(t, q, true, context)
-	IsFull(t, q, true, context)
-	cap, err := q.Cap()
-	if err != nil {
-		msg := fmt.Sprintf("unexpected error getting capacity: %q", err)
-		error(t, context, msg)
+func DequeueAll(t *testing.T, q queue.Queue, expected []int, context string) {
+	for i, e := range expected {
+		innerCtx := fmt.Sprintf("%s: element %d", context, i)
+		Dequeue(t, q, e, innerCtx)
 	}
-	for i := 0; i < cap; i++ {
-		Dequeue(t, q, i, context)
+}
+
+func Seq(a, b int) []int {
+	begin := a
+	end := b
+	step := 1
+	if j < i {
+		begin = b
+		end = a
+		step = -1
 	}
-	IsEmpty(t, q, true, context)
+	count = end - begin + 1
+	ret := make([]int, count)
+	for i := 0; i <= count; i++ {
+		ret[i] = begin + i
+	}
 }

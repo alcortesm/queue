@@ -25,24 +25,13 @@ type CBuf struct {
 // given capacity is a negative integer.
 func New(capacity int) (queue.Queue, error) {
 	if capacity < 0 {
-		return nil, fmt.Errorf("capacity must be 0 or positive, was %d",
+		return nil, fmt.Errorf("negative capacity (%d)",
 			capacity)
 	}
 	return &CBuf{
 		cap:   capacity,
 		elems: make([]interface{}, capacity),
 	}, nil
-}
-
-// Implements queue.Queue.  CBuf queues are always bounded, which means this
-// method always return true.
-func (c *CBuf) IsBounded() bool {
-	return true
-}
-
-// Implements queue.Queue.
-func (c *CBuf) Cap() (int, error) {
-	return c.cap, nil
 }
 
 // Implements queue.Queue.
@@ -53,11 +42,6 @@ func (c *CBuf) Len() int {
 // Implements queue.Queue.
 func (c *CBuf) IsEmpty() bool {
 	return c.len == 0
-}
-
-// Implements queue.Queue.
-func (c *CBuf) IsFull() bool {
-	return c.len == c.cap
 }
 
 func (c *CBuf) next(n int) int {
