@@ -5,7 +5,7 @@
 language: go
 go: 1.8
 
-# don't use the default clone depth value (50), it is too much.
+# Don't use the default clone depth value (50), it is too much.
 git:
     depth: 3
 
@@ -13,3 +13,12 @@ git:
 # This is the default for repos enabled since 2015 and much
 # faster than the sudo-enabled build.
 sudo: false
+
+# Run unit test and generate coverage report
+script: bash test-and-coverage.bash
+
+# Send coverage reports to Codecov (https://codecov.io, a web service to
+# explore coverage reports)
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
+
