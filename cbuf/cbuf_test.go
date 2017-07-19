@@ -147,9 +147,9 @@ func TestAllWhileFillingUpAndDepleting(t *testing.T) {
 			check.Dequeue(t, q, i, context)
 		}
 		context = test.context + ": depleted"
-		check.IsEmpty(t, q, true, test.context)
-		check.Len(t, q, 0, test.context)
-		check.HeadErrEmpty(t, q, test.context)
-		check.DequeueErrEmpty(t, q, test.context)
+		check.IsEmpty(t, q, true, context)
+		check.Len(t, q, 0, context)
+		check.HeadErrEmpty(t, q, context)
+		check.DequeueErrEmpty(t, q, context)
 	}
 }
