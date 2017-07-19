@@ -14,11 +14,13 @@ git:
 # faster than the sudo-enabled build.
 sudo: false
 
-# Run unit test and generate coverage report
-script: bash test-and-coverage.bash
+script:
+    - go tool vet -all .
+    # Run unit test and generate coverage report
+    - bash test-and-coverage.bash
 
-# Send coverage reports to Codecov (https://codecov.io, a web service to
-# explore coverage reports)
 after_success:
+    # Send coverage reports to Codecov (https://codecov.io, a web
+    # service to explore coverage reports)
     - bash <(curl -s https://codecov.io/bash)
 
