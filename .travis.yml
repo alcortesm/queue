@@ -4,3 +4,12 @@
 
 language: go
 go: 1.8
+
+# don't use the default clone depth value (50), it is too much.
+git:
+    depth: 3
+
+# Use a container based virtual environment for the build.
+# This is the default for repos enabled since 2015 and much
+# faster than the sudo-enabled build.
+sudo: false
