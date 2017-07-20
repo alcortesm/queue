@@ -1,6 +1,9 @@
 /*
-Package cbuf implements queue.Queue with a fixed capacity, in memory,
-circular buffer that gets allocated upon construction.
+Package cbuf implements queue.Queue with an in memory circular buffer of
+fixed capacity.
+
+The buffer gets allocated upon construction and all queue operations
+have constant worst-case computational complexty.
 
 This implementation is not thread-safe.
 */
@@ -12,8 +15,8 @@ import (
 	"github.com/alcortesm/queue"
 )
 
-// CBuf values are circular buffers of constant size.  They are not zero
-// value safe, use the New function below to instantiate them.
+// CBuf values are circular buffers of constant size.  They are not
+// zero-value safe, use the New function below to instantiate them.
 type CBuf struct {
 	cap   int
 	len   int
@@ -25,7 +28,7 @@ type CBuf struct {
 // error on success.  If the capacity is negative it returns nil and an
 // error.  Zero capacity buffers are allowed; they will be empty and
 // full at the same time.
-func New(capacity int) (queue.Queue, error) {
+func New(capacity int) (*CBuf, error) {
 	if capacity < 0 {
 		return nil, fmt.Errorf("negative capacity (%d)",
 			capacity)
@@ -54,7 +57,8 @@ func (c *CBuf) tail() int {
 	return (c.head + c.len) % c.cap
 }
 
-// Enqueue implements queue.Queue.
+// Enqueue implements queue.Queue.  It returns ErrFull if there is not
+// enough capacity in the buffer for the given element.
 func (c *CBuf) Enqueue(e interface{}) error {
 	if c.len == c.cap {
 		return queue.ErrFull
