@@ -1,4 +1,4 @@
-// Package assert provides convenience ways to test queue.Queue
+// Package assert provides convenience ways to test queues
 // implementations.
 package assert
 
@@ -15,16 +15,16 @@ type Test interface {
 	Errorf(format string, a ...interface{})
 }
 
-// Assert represent an association between a queue.Queue and a test.
-// The methods from this type can be used form inside a test to
-// manipulate a queue and assert that it behaves in particular ways.  If
-// not, a test error will be automatically issued with a sensible
-// failure message, prefixed with the value of the Prefix field.
+// Assert represent an association between a queue.Queue and a Test.
+// The methods from this type can be used to manipulate a queue and
+// assert that it behaves in particular ways.  If not, the test will
+// be notified of the error with a sensible message, prefixed
+// with the value of the Prefix field.
 type Assert struct {
-	q queue.Queue
-	t Test
-	// The prefix to use in the error messages when an assertion fails.
+	// The prefix to use in error messages when an assertion fails.
 	Prefix string
+	q      queue.Queue
+	t      Test
 }
 
 // New returns a new association between the given queue and the given
