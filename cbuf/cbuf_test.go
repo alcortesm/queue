@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/alcortesm/queue"
+	queueAssert "github.com/alcortesm/queue/assert"
 	"github.com/alcortesm/queue/cbuf"
-	"github.com/alcortesm/queue/check"
 )
 
 func mustNew(t *testing.T, n int) queue.Queue {
@@ -29,127 +29,111 @@ func TestNewFailsWithNegativeCapacity(t *testing.T) {
 }
 
 func TestInitiallyEmpty(t *testing.T) {
-	for _, test := range []struct {
-		context  string
-		capacity int
-	}{
-		{"zero", 0},
-		{"one", 1},
-		{"two", 2},
-		{"ten", 10},
-	} {
-		q := mustNew(t, test.capacity)
-		check.IsEmpty(t, q, true, test.context)
-		check.Len(t, q, 0, test.context)
-		check.HeadErrEmpty(t, q, test.context)
-		check.DequeueErrEmpty(t, q, test.context)
+	for _, cap := range []int{0, 1, 2, 10} {
+		q := mustNew(t, cap)
+		assert := queueAssert.New(t, q)
+		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		assert.Len(0)
+		assert.IsEmpty(true)
+		assert.HeadErrEmpty()
+		assert.DequeueErrEmpty()
 	}
 }
 
 func TestOneElementNotFull(t *testing.T) {
-	for _, test := range []struct {
-		context  string
-		capacity int
-	}{
-		{"two", 2},
-		{"ten", 10},
-	} {
-		q := mustNew(t, test.capacity)
-		check.Enqueue(t, q, 12, test.context)
-		check.IsEmpty(t, q, false, test.context)
-		check.Len(t, q, 1, test.context)
-		check.Dequeue(t, q, 12, test.context)
+	for _, cap := range []int{2, 10} {
+		q := mustNew(t, cap)
+		assert := queueAssert.New(t, q)
+		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		assert.Enqueue(12)
+		assert.IsEmpty(false)
+		assert.Len(1)
+		assert.Dequeue(12)
 	}
 }
 
 func TestZeroCapacityIsEmptyAndFull(t *testing.T) {
 	q := mustNew(t, 0)
-	noCtx := ""
-	check.IsEmpty(t, q, true, noCtx)
-	check.EnqueueErrFull(t, q, noCtx)
+	assert := queueAssert.New(t, q)
+	assert.IsEmpty(true)
+	assert.EnqueueErrFull()
 }
 
 func TestFull(t *testing.T) {
-	for _, test := range []struct {
-		context  string
-		capacity int
-	}{
-		{"one", 1},
-		{"two", 2},
-		{"ten", 10},
-	} {
-		q := mustNew(t, test.capacity)
-		check.EnqueueAll(t, q, check.Seq(0, test.capacity), test.context)
-		check.Len(t, q, test.capacity, test.context)
-		check.IsEmpty(t, q, false, test.context)
-		check.EnqueueErrFull(t, q, test.context)
+	for _, cap := range []int{1, 2, 10} {
+		q := mustNew(t, cap)
+		assert := queueAssert.New(t, q)
+		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		data := queueAssert.Seq(0, cap)
+		assert.Enqueue(data...)
+		assert.Len(len(data))
+		assert.IsEmpty(false)
+		assert.EnqueueErrFull()
 	}
 }
 
-func TestFillUpThenEmpty(t *testing.T) {
-	for _, test := range []struct {
-		context  string
-		capacity int
-	}{
-		{"zero", 0},
-		{"one", 1},
-		{"two", 2},
-		{"ten", 10},
-	} {
-		q := mustNew(t, test.capacity)
-		// fill half of it and empty it
-		check.EnqueueAll(t, q, check.Seq(0, test.capacity/2), test.context)
-		check.DequeueAll(t, q, check.Seq(0, test.capacity/2), test.context)
-		check.IsEmpty(t, q, true, test.context)
-		check.Len(t, q, 0, test.context)
-		check.HeadErrEmpty(t, q, test.context)
-		check.DequeueErrEmpty(t, q, test.context)
-		// now fill it up and empty it
-		check.EnqueueAll(t, q, check.Seq(0, test.capacity), test.context)
-		check.DequeueAll(t, q, check.Seq(0, test.capacity), test.context)
-		check.IsEmpty(t, q, true, test.context)
-		check.Len(t, q, 0, test.context)
-		check.HeadErrEmpty(t, q, test.context)
-		check.DequeueErrEmpty(t, q, test.context)
+func TestFillHalfThenEmptyFillFullThenEmpty(t *testing.T) {
+	for _, cap := range []int{2, 3, 10} {
+		q := mustNew(t, cap)
+		assert := queueAssert.New(t, q)
+		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		// fill half of it
+		full := queueAssert.Seq(0, cap)
+		half := full[:len(full)/2]
+		assert.Enqueue(half...)
+		assert.Len(len(half))
+		assert.IsEmpty(false)
+		// empty it entirely
+		assert.Dequeue(half...)
+		assert.IsEmpty(true)
+		assert.Len(0)
+		assert.HeadErrEmpty()
+		assert.DequeueErrEmpty()
+		// fill it completely
+		assert.Enqueue(full...)
+		assert.Len(len(full))
+		assert.IsEmpty(false)
+		assert.EnqueueErrFull()
+		// empty it entirely
+		assert.Dequeue(full...)
+		assert.IsEmpty(true)
+		assert.Len(0)
+		assert.HeadErrEmpty()
+		assert.DequeueErrEmpty()
 	}
 }
 
-func TestAllWhileFillingUpAndDepleting(t *testing.T) {
-	for _, test := range []struct {
-		context  string
-		capacity int
-	}{
-		{"zero", 0},
-		{"one", 1},
-		{"two", 2},
-		{"ten", 10},
-	} {
-		q := mustNew(t, test.capacity)
-		// fill it up with numbers
-		for i := 0; i < test.capacity; i++ {
-			context := fmt.Sprintf("%s: enqueuing %d", test.context, i)
-			check.Len(t, q, i, context)
-			check.Enqueue(t, q, i, context)
-			check.IsEmpty(t, q, false, context)
-			check.Head(t, q, 0, context)
-			check.Head(t, q, 0, context) // head should be idempotent
+func TestAllWhileEnqueueFullAndDequeueUntilEmpty(t *testing.T) {
+	for _, cap := range []int{0, 1, 2, 3, 10} {
+		q := mustNew(t, cap)
+		assert := queueAssert.New(t, q)
+		// enqueue number until full
+		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		for i := 0; i < cap; i++ {
+			assert.Prefix = fmt.Sprintf("%s: enqueuing #%d", assert.Prefix, i)
+			assert.Len(i)
+			assert.Enqueue(i)
+			assert.IsEmpty(false)
+			assert.Head(0)
+			assert.Head(0) // head should be idempotent
 		}
-		context := test.context + ": filled up"
-		check.Len(t, q, test.capacity, context)
-		check.EnqueueErrFull(t, q, context)
+		assert.Prefix = fmt.Sprintf("capacity %d: full", cap)
+		assert.Len(cap)
+		assert.EnqueueErrFull()
 		// extract all numbers
-		for i := 0; i < test.capacity; i++ {
-			context := fmt.Sprintf("%s: dequeuing %d", test.context, i)
-			check.IsEmpty(t, q, false, context)
-			check.Len(t, q, test.capacity-i, context)
-			check.Head(t, q, i, context)
-			check.Head(t, q, i, context) // head should be idempotent
-			check.Dequeue(t, q, i, context)
+		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		for i := 0; i < cap; i++ {
+			assert.Prefix = fmt.Sprintf("%s: dequeuing #%d", assert.Prefix, i)
+			assert.IsEmpty(false)
+			assert.Len(cap - i)
+			assert.Head(i)
+			assert.Head(i) // head should be idempotent
+			assert.Dequeue(i)
 		}
-		context = test.context + ": depleted"
-		check.IsEmpty(t, q, true, context)
-		check.Len(t, q, 0, context)
-		check.HeadErrEmpty(t, q, context)
-		check.DequeueErrEmpty(t, q, context)
+		assert.Prefix = fmt.Sprintf("capacity %d: empty", cap)
+		assert.IsEmpty(true)
+		assert.Len(0)
+		assert.HeadErrEmpty()
+		assert.DequeueErrEmpty()
 	}
 }

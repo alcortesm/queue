@@ -1,10 +1,10 @@
-package check_test
+package assert_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/alcortesm/queue/check"
+	"github.com/alcortesm/queue/assert"
 )
 
 func TestSeq(t *testing.T) {
@@ -20,7 +20,7 @@ func TestSeq(t *testing.T) {
 		{-2, 2, []int{-2, -1, 0, 1}},
 		{2, -2, []int{-2, -1, 0, 1}},
 	} {
-		obtained := check.Seq(test.from, test.to)
+		obtained := assert.Seq(test.from, test.to)
 		if !reflect.DeepEqual(obtained, test.expected) {
 			t.Errorf("from %d to %d: expected %v, obtained %v",
 				test.from, test.to, test.expected, obtained)
