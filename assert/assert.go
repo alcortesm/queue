@@ -4,10 +4,16 @@ package assert
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/alcortesm/queue"
 )
+
+// Test represents a test that can be set to fail with a formated
+// message using the Errorf method, for instance, *testing.T from the
+// standard library.
+type Test interface {
+	Errorf(format string, a ...interface{})
+}
 
 // Assert represent an association between a queue.Queue and a test.
 // The methods from this type can be used form inside a test to
@@ -16,14 +22,14 @@ import (
 // failure message, prefixed with the value of the Prefix field.
 type Assert struct {
 	q queue.Queue
-	t *testing.T
+	t Test
 	// The prefix to use in the error messages when an assertion fails.
 	Prefix string
 }
 
 // New returns a new association between the given queue and the given
 // test.  The Prefix field is initialized to the empty string.
-func New(t *testing.T, q queue.Queue) *Assert {
+func New(t Test, q queue.Queue) *Assert {
 	return &Assert{
 		q:      q,
 		t:      t,
@@ -59,11 +65,8 @@ func (a *Assert) IsEmpty(expected bool) {
 func (a *Assert) Enqueue(numbers ...int) {
 	for i, n := range numbers {
 		if err := a.q.Enqueue(n); err != nil {
-			ctx := fmt.Sprintf("wrong Enqueue(%d)", n)
-			if len(numbers) != 0 {
-				ctx = fmt.Sprintf("wrong #%d Enqueue(%d)", i, n)
-			}
-			a.errorf("%s: unexpected error: %q", ctx, err)
+			a.errorf("wrong #%d Enqueue(%d): unexpected error: %q",
+				i, n, err)
 		}
 	}
 }
@@ -88,6 +91,7 @@ func (a *Assert) Head(expected int) {
 	n, ok := obtained.(int)
 	if !ok {
 		a.errorf("wrong Head: obtained (%v) cannot be cast to int", obtained)
+		return
 	}
 	if expected != n {
 		a.errorf("wrong Head: expected %d, got %d", expected, n)
