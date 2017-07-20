@@ -36,12 +36,12 @@ func New(capacity int) (queue.Queue, error) {
 	}, nil
 }
 
-// Implements queue.Queue.
+// Len implements queue.Queue.
 func (c *CBuf) Len() int {
 	return c.len
 }
 
-// Implements queue.Queue.
+// IsEmpty implements queue.Queue.
 func (c *CBuf) IsEmpty() bool {
 	return c.len == 0
 }
@@ -54,7 +54,7 @@ func (c *CBuf) tail() int {
 	return (c.head + c.len) % c.cap
 }
 
-// Implements queue.Queue.
+// Enqueue implements queue.Queue.
 func (c *CBuf) Enqueue(e interface{}) error {
 	if c.len == c.cap {
 		return queue.ErrFull
@@ -64,7 +64,7 @@ func (c *CBuf) Enqueue(e interface{}) error {
 	return nil
 }
 
-// Implements queue.Queue.
+// Head implements queue.Queue.
 func (c *CBuf) Head() (interface{}, error) {
 	if c.len == 0 {
 		return nil, queue.ErrEmpty
@@ -72,7 +72,7 @@ func (c *CBuf) Head() (interface{}, error) {
 	return c.elems[c.head], nil
 }
 
-// Implements queue.Queue.
+// Dequeue implements queue.Queue.
 func (c *CBuf) Dequeue() (interface{}, error) {
 	if c.len == 0 {
 		return nil, queue.ErrEmpty
