@@ -1,6 +1,5 @@
 # Travis CI (https://travis-ci.org/) is a continuous integration service for
-# open source projects. This file uses the default travis behaviour for go
-# projects: run unit tests on the code (go test -v ./...).
+# open source projects.
 
 language: go
 go: 1.8
