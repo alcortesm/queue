@@ -14,6 +14,9 @@ git:
 # faster than the sudo-enabled build.
 sudo: false
 
+notifications:
+    email: false
+
 script:
     - go tool vet -all .
     # Run unit test and generate coverage report
