@@ -32,8 +32,8 @@ func TestInitiallyEmpty(t *testing.T) {
 	for _, cap := range []int{0, 1, 2, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
-		assert.DequeueErrEmpty()
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
+		assert.ExtractErrEmpty()
 	}
 }
 
@@ -41,27 +41,27 @@ func TestInsertExtractOneElement(t *testing.T) {
 	for _, cap := range []int{1, 2, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
-		assert.Enqueue(12)
-		assert.Dequeue(12)
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
+		assert.Insert(12)
+		assert.Extract(12)
 	}
 }
 
 func TestZeroCapacityIsEmptyAndFull(t *testing.T) {
 	q := mustNew(t, 0)
 	assert := queueAssert.New(t, q)
-	assert.DequeueErrEmpty()
-	assert.EnqueueErrFull()
+	assert.ExtractErrEmpty()
+	assert.InsertErrFull()
 }
 
 func TestFull(t *testing.T) {
 	for _, cap := range []int{1, 2, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
 		data := queueAssert.Seq(0, cap)
-		assert.Enqueue(data...)
-		assert.EnqueueErrFull()
+		assert.Insert(data...)
+		assert.InsertErrFull()
 	}
 }
 
@@ -69,19 +69,19 @@ func TestFillHalfThenEmptyFillFullThenEmpty(t *testing.T) {
 	for _, cap := range []int{2, 3, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
 		// fill half of it
 		full := queueAssert.Seq(0, cap)
 		half := full[:len(full)/2]
-		assert.Enqueue(half...)
+		assert.Insert(half...)
 		// empty it entirely
-		assert.Dequeue(half...)
-		assert.DequeueErrEmpty()
+		assert.Extract(half...)
+		assert.ExtractErrEmpty()
 		// fill it completely
-		assert.Enqueue(full...)
-		assert.EnqueueErrFull()
+		assert.Insert(full...)
+		assert.InsertErrFull()
 		// empty it entirely
-		assert.Dequeue(full...)
-		assert.DequeueErrEmpty()
+		assert.Extract(full...)
+		assert.ExtractErrEmpty()
 	}
 }

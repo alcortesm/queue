@@ -17,15 +17,15 @@ func (t *mockTest) ErrorHasBeenCalled() bool               { return bool(*t) }
 // a mock queue with 0 capacity
 type zeroCap struct{}
 
-func (q *zeroCap) Enqueue(_ interface{}) error   { return queue.ErrFull }
-func (q *zeroCap) Dequeue() (interface{}, error) { return nil, queue.ErrEmpty }
+func (q *zeroCap) Insert(_ interface{}) error    { return queue.ErrFull }
+func (q *zeroCap) Extract() (interface{}, error) { return nil, queue.ErrEmpty }
 
 // a mock queue that always returns 42 when dequeue or head are called.
 type canDequeue struct {
 	zeroCap
 }
 
-func (q *canDequeue) Dequeue() (interface{}, error) { return 42, nil }
+func (q *canDequeue) Extract() (interface{}, error) { return 42, nil }
 
 // a mock queue that always returns the string "42" when dequeue or head
 // are called.
@@ -33,14 +33,14 @@ type canDequeueAString struct {
 	zeroCap
 }
 
-func (q *canDequeueAString) Dequeue() (interface{}, error) { return "42", nil }
+func (q *canDequeueAString) Extract() (interface{}, error) { return "42", nil }
 
 // a mock queue where Enqueue never fails
 type neverFull struct {
 	zeroCap
 }
 
-func (q *neverFull) Enqueue(_ interface{}) error { return nil }
+func (q *neverFull) Insert(_ interface{}) error { return nil }
 
 func TestNewHasEmptyPrefix(t *testing.T) {
 	a := assert.New(nil, nil)
@@ -52,7 +52,7 @@ func TestNewHasEmptyPrefix(t *testing.T) {
 func TestEnqueueTruePositive(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(neverFull))
-	a.Enqueue(42)
+	a.Insert(42)
 	if mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -61,7 +61,7 @@ func TestEnqueueTruePositive(t *testing.T) {
 func TestEnqueueTrueNegative(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(zeroCap))
-	a.Enqueue(42)
+	a.Insert(42)
 	if !mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -70,7 +70,7 @@ func TestEnqueueTrueNegative(t *testing.T) {
 func TestEnqueueErrFullTruePositive(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(zeroCap))
-	a.EnqueueErrFull()
+	a.InsertErrFull()
 	if mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -79,7 +79,7 @@ func TestEnqueueErrFullTruePositive(t *testing.T) {
 func TestEnqueueErrFullTrueNegative(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(neverFull))
-	a.EnqueueErrFull()
+	a.InsertErrFull()
 	if !mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -88,7 +88,7 @@ func TestEnqueueErrFullTrueNegative(t *testing.T) {
 func TestDequeueTruePositive(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(canDequeue))
-	a.Dequeue(42)
+	a.Extract(42)
 	if mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -97,7 +97,7 @@ func TestDequeueTruePositive(t *testing.T) {
 func TestDequeueOnEmpty(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(zeroCap))
-	a.Dequeue(42)
+	a.Extract(42)
 	if !mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -106,7 +106,7 @@ func TestDequeueOnEmpty(t *testing.T) {
 func TestDequeueCannotCast(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(canDequeueAString))
-	a.Dequeue(42)
+	a.Extract(42)
 	if !mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -115,7 +115,7 @@ func TestDequeueCannotCast(t *testing.T) {
 func TestDequeueWrongExpected(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(canDequeue))
-	a.Dequeue(43)
+	a.Extract(43)
 	if !mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -124,7 +124,7 @@ func TestDequeueWrongExpected(t *testing.T) {
 func TestDequeueErrEmptyTruePositive(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(zeroCap))
-	a.DequeueErrEmpty()
+	a.ExtractErrEmpty()
 	if mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
@@ -133,7 +133,7 @@ func TestDequeueErrEmptyTruePositive(t *testing.T) {
 func TestDequeueErrEmptyTrueNegative(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(canDequeue))
-	a.DequeueErrEmpty()
+	a.ExtractErrEmpty()
 	if !mt.ErrorHasBeenCalled() {
 		t.Error()
 	}
