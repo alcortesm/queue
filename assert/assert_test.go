@@ -17,11 +17,8 @@ func (t *mockTest) ErrorHasBeenCalled() bool               { return bool(*t) }
 // a mock queue with 0 capacity
 type zeroCap struct{}
 
-func (q *zeroCap) Len() int                      { return 0 }
-func (q *zeroCap) IsEmpty() bool                 { return true }
 func (q *zeroCap) Enqueue(_ interface{}) error   { return queue.ErrFull }
 func (q *zeroCap) Dequeue() (interface{}, error) { return nil, queue.ErrEmpty }
-func (q *zeroCap) Head() (interface{}, error)    { return nil, queue.ErrEmpty }
 
 // a mock queue that always returns 42 when dequeue or head are called.
 type canDequeue struct {
@@ -29,7 +26,6 @@ type canDequeue struct {
 }
 
 func (q *canDequeue) Dequeue() (interface{}, error) { return 42, nil }
-func (q *canDequeue) Head() (interface{}, error)    { return 42, nil }
 
 // a mock queue that always returns the string "42" when dequeue or head
 // are called.
@@ -38,7 +34,6 @@ type canDequeueAString struct {
 }
 
 func (q *canDequeueAString) Dequeue() (interface{}, error) { return "42", nil }
-func (q *canDequeueAString) Head() (interface{}, error)    { return "42", nil }
 
 // a mock queue where Enqueue never fails
 type neverFull struct {
@@ -51,42 +46,6 @@ func TestNewHasEmptyPrefix(t *testing.T) {
 	a := assert.New(nil, nil)
 	if a.Prefix != "" {
 		t.Errorf("bad prefix: expected \"\", got %q", a.Prefix)
-	}
-}
-
-func TestLenTruePositive(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(zeroCap))
-	a.Len(0)
-	if mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestLenTrueNegative(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(zeroCap))
-	a.Len(1)
-	if !mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestIsEmptyTruePositive(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(zeroCap))
-	a.IsEmpty(true)
-	if mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestIsEmptyTrueNegative(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(zeroCap))
-	a.IsEmpty(false)
-	if !mt.ErrorHasBeenCalled() {
-		t.Error()
 	}
 }
 
@@ -121,60 +80,6 @@ func TestEnqueueErrFullTrueNegative(t *testing.T) {
 	mt := new(mockTest)
 	a := assert.New(mt, new(neverFull))
 	a.EnqueueErrFull()
-	if !mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestHeadTruePositive(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(canDequeue))
-	a.Head(42)
-	if mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestHeadOnEmpty(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(zeroCap))
-	a.Head(42)
-	if !mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestHeadCannotCast(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(canDequeueAString))
-	a.Head(42)
-	if !mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestHeadWrongExpected(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(canDequeue))
-	a.Head(43)
-	if !mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestHeadErrEmptyTruePositive(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(zeroCap))
-	a.HeadErrEmpty()
-	if mt.ErrorHasBeenCalled() {
-		t.Error()
-	}
-}
-
-func TestHeadErrEmptyTrueNegative(t *testing.T) {
-	mt := new(mockTest)
-	a := assert.New(mt, new(canDequeue))
-	a.HeadErrEmpty()
 	if !mt.ErrorHasBeenCalled() {
 		t.Error()
 	}

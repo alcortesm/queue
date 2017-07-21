@@ -43,23 +43,6 @@ func (a *Assert) errorf(format string, v ...interface{}) {
 	a.t.Errorf("%s%s", a.Prefix, fmt.Sprintf(format, v...))
 }
 
-// Len asserts that the length of the associated queue is the expected value.
-func (a *Assert) Len(expected int) {
-	obtained := a.q.Len()
-	if obtained != expected {
-		a.errorf("wrong length: expected %d, got %d", expected, obtained)
-	}
-}
-
-// IsEmpty asserts that calling IsEmpty on the associated queue returns the
-// expected value.
-func (a *Assert) IsEmpty(expected bool) {
-	obtained := a.q.IsEmpty()
-	if obtained != expected {
-		a.errorf("wrong IsEmpty: expected %t, got %t", expected, obtained)
-	}
-}
-
 // Enqueue asserts that enqueuing the given numbers on the associated
 // queue success.
 func (a *Assert) Enqueue(numbers ...int) {
@@ -77,34 +60,6 @@ func (a *Assert) EnqueueErrFull() {
 	if err := a.q.Enqueue(42); err != queue.ErrFull {
 		a.errorf("wrong Enqueue: should have failed with ErrFull, "+
 			"but got %q instead", err)
-	}
-}
-
-// Head asserts that calling Head on the associated queue success and returns
-// the expected number.
-func (a *Assert) Head(expected int) {
-	obtained, err := a.q.Head()
-	if err != nil {
-		a.errorf("wrong Head: unexpected error: %s", err)
-		return
-	}
-	n, ok := obtained.(int)
-	if !ok {
-		a.errorf("wrong Head: obtained (%v) cannot be cast to int", obtained)
-		return
-	}
-	if expected != n {
-		a.errorf("wrong Head: expected %d, got %d", expected, n)
-	}
-}
-
-// HeadErrEmpty asserts that calling Head on the associated queue fails with
-// the error ErrEmpty.
-func (a *Assert) HeadErrEmpty() {
-	obtained, err := a.q.Head()
-	if err != queue.ErrEmpty {
-		a.errorf("wrong Head: should have failed with ErrEmpty, "+
-			"but got %v and an %q error instead", obtained, err)
 	}
 }
 
