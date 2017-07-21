@@ -7,7 +7,7 @@ package queue
 import "errors"
 
 // A Queue interface represents a First-In-First-Out (FIFO) collection
-// of the empty interfaces.
+// of empty interfaces.
 //
 // This interface makes no assumtions about the thread safety of its
 // implementations.
