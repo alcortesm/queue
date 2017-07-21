@@ -1,10 +1,8 @@
 /*
-Package cbuf implements queue.Queue with an in memory circular buffer of
-fixed capacity.
+Package cbuf implements an in-memory bounded queue with constant
+worst-case time complexity on all its methods.
 
-The buffer gets allocated upon construction and all queue operations
-have constant worst-case computational complexty.
-
+Internally, it uses a fixed size circular buffer allocated upon construction.
 This implementation is not thread-safe.
 */
 package cbuf
@@ -39,16 +37,6 @@ func New(capacity int) (*CBuf, error) {
 	}, nil
 }
 
-// Len implements queue.Queue.
-func (c *CBuf) Len() int {
-	return c.len
-}
-
-// IsEmpty implements queue.Queue.
-func (c *CBuf) IsEmpty() bool {
-	return c.len == 0
-}
-
 func (c *CBuf) next(n int) int {
 	return (n + 1) % c.cap
 }
@@ -57,9 +45,10 @@ func (c *CBuf) tail() int {
 	return (c.head + c.len) % c.cap
 }
 
-// Enqueue implements queue.Queue.  It returns ErrFull if there is not
-// enough capacity in the buffer for the given element.
-func (c *CBuf) Enqueue(e interface{}) error {
+// Insert implements queue.Queue.  It fails and returns queue.ErrFull if
+// there is not enough capacity in the circular buffer to accommodate
+// the given element.
+func (c *CBuf) Insert(e interface{}) error {
 	if c.len == c.cap {
 		return queue.ErrFull
 	}
@@ -68,16 +57,8 @@ func (c *CBuf) Enqueue(e interface{}) error {
 	return nil
 }
 
-// Head implements queue.Queue.
-func (c *CBuf) Head() (interface{}, error) {
-	if c.len == 0 {
-		return nil, queue.ErrEmpty
-	}
-	return c.elems[c.head], nil
-}
-
-// Dequeue implements queue.Queue.
-func (c *CBuf) Dequeue() (interface{}, error) {
+// Extract implements queue.Queue.
+func (c *CBuf) Extract() (interface{}, error) {
 	if c.len == 0 {
 		return nil, queue.ErrEmpty
 	}

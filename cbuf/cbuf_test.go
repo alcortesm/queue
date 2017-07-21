@@ -32,43 +32,36 @@ func TestInitiallyEmpty(t *testing.T) {
 	for _, cap := range []int{0, 1, 2, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
-		assert.Len(0)
-		assert.IsEmpty(true)
-		assert.HeadErrEmpty()
-		assert.DequeueErrEmpty()
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
+		assert.ExtractErrEmpty()
 	}
 }
 
-func TestOneElementNotFull(t *testing.T) {
-	for _, cap := range []int{2, 10} {
+func TestInsertExtractOneElement(t *testing.T) {
+	for _, cap := range []int{1, 2, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
-		assert.Enqueue(12)
-		assert.IsEmpty(false)
-		assert.Len(1)
-		assert.Dequeue(12)
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
+		assert.Insert(12)
+		assert.Extract(12)
 	}
 }
 
 func TestZeroCapacityIsEmptyAndFull(t *testing.T) {
 	q := mustNew(t, 0)
 	assert := queueAssert.New(t, q)
-	assert.IsEmpty(true)
-	assert.EnqueueErrFull()
+	assert.ExtractErrEmpty()
+	assert.InsertErrFull()
 }
 
 func TestFull(t *testing.T) {
 	for _, cap := range []int{1, 2, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
 		data := queueAssert.Seq(0, cap)
-		assert.Enqueue(data...)
-		assert.Len(len(data))
-		assert.IsEmpty(false)
-		assert.EnqueueErrFull()
+		assert.Insert(data...)
+		assert.InsertErrFull()
 	}
 }
 
@@ -76,64 +69,19 @@ func TestFillHalfThenEmptyFillFullThenEmpty(t *testing.T) {
 	for _, cap := range []int{2, 3, 10} {
 		q := mustNew(t, cap)
 		assert := queueAssert.New(t, q)
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
+		assert.Prefix = fmt.Sprintf("capacity %d:\n", cap)
 		// fill half of it
 		full := queueAssert.Seq(0, cap)
 		half := full[:len(full)/2]
-		assert.Enqueue(half...)
-		assert.Len(len(half))
-		assert.IsEmpty(false)
+		assert.Insert(half...)
 		// empty it entirely
-		assert.Dequeue(half...)
-		assert.IsEmpty(true)
-		assert.Len(0)
-		assert.HeadErrEmpty()
-		assert.DequeueErrEmpty()
+		assert.Extract(half...)
+		assert.ExtractErrEmpty()
 		// fill it completely
-		assert.Enqueue(full...)
-		assert.Len(len(full))
-		assert.IsEmpty(false)
-		assert.EnqueueErrFull()
+		assert.Insert(full...)
+		assert.InsertErrFull()
 		// empty it entirely
-		assert.Dequeue(full...)
-		assert.IsEmpty(true)
-		assert.Len(0)
-		assert.HeadErrEmpty()
-		assert.DequeueErrEmpty()
-	}
-}
-
-func TestAllWhileEnqueueFullAndDequeueUntilEmpty(t *testing.T) {
-	for _, cap := range []int{0, 1, 2, 3, 10} {
-		q := mustNew(t, cap)
-		assert := queueAssert.New(t, q)
-		// enqueue number until full
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
-		for i := 0; i < cap; i++ {
-			assert.Prefix = fmt.Sprintf("%s: enqueuing #%d", assert.Prefix, i)
-			assert.Len(i)
-			assert.Enqueue(i)
-			assert.IsEmpty(false)
-			assert.Head(0)
-			assert.Head(0) // head should be idempotent
-		}
-		assert.Prefix = fmt.Sprintf("capacity %d: full", cap)
-		assert.Len(cap)
-		assert.EnqueueErrFull()
-		// extract all numbers
-		assert.Prefix = fmt.Sprintf("capacity %d", cap)
-		for i := 0; i < cap; i++ {
-			assert.Prefix = fmt.Sprintf("%s: dequeuing #%d", assert.Prefix, i)
-			assert.IsEmpty(false)
-			assert.Len(cap - i)
-			assert.Head(i)
-			assert.Head(i) // head should be idempotent
-			assert.Dequeue(i)
-		}
-		assert.Prefix = fmt.Sprintf("capacity %d: empty", cap)
-		assert.IsEmpty(true)
-		assert.Len(0)
-		assert.HeadErrEmpty()
-		assert.DequeueErrEmpty()
+		assert.Extract(full...)
+		assert.ExtractErrEmpty()
 	}
 }
